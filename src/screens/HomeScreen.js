@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, Button, FlatList, Dimensions, Image, SafeAreaView, ScrollView } from 'react-native';
+import { Text, View, Button, FlatList, Dimensions, Image, ScrollView,StatusBar } from 'react-native';
 import { styles } from '../styles/styles';
 import ConnectionIndicator from '../components/ConnectionIndicator';
 import LastMessageCard from '../components/LastMessageCard';
@@ -8,7 +8,7 @@ import HistoryItem from '../components/HistoryItem';
 import useFirebase from '../hooks/useFirebase';
 import useMQTT from '../hooks/useMQTT';
 import useStorage from '../hooks/useStorage';
-import { database } from '../config/firebaseConfig'; 
+import { database } from '../config/firebaseConfig';
 import { ref, remove } from 'firebase/database';
 
 export default function HomeScreen() {
@@ -36,9 +36,16 @@ export default function HomeScreen() {
     );
   };
 
+  // HomeScreen.js - versión mejorada
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+    <View style={styles.fullScreenContainer}>
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+      >
+        {/* Header */}
         <View style={styles.headerContainer}>
           <Image
             source={require('../../assets/logo.png')}
@@ -46,33 +53,66 @@ export default function HomeScreen() {
             resizeMode="contain"
           />
           <Text style={styles.title}>📡 DETECTOR DE PRESENCIA CISTCOR</Text>
+          <Text style={styles.subtitle}>Monitoreo en tiempo real</Text>
         </View>
 
-        {error && <Text style={styles.errorText}>Error: {error}</Text>}
-
-        <ConnectionIndicator isConnected={isConnected} />
-
-        {lastMessage && <LastMessageCard lastMessage={lastMessage} />}
-
-        <View style={[styles.row, styles.spaceBetween, { marginVertical: 15 }]}>
-          <Text style={styles.subtitle}>Historial</Text>
-          <Button title="🗑️ Limpiar" onPress={handleClearHistory} color="#ff3300" />
+        {/* Estado de conexión */}
+        <View style={styles.statusContainer}>
+          <ConnectionIndicator isConnected={isConnected} />
+          <Text style={styles.statusText}>
+            {isConnected ? 'Conectado' : 'Desconectado'} - {history.length} eventos
+          </Text>
         </View>
 
-        {history.length > 0 ? (
-          <LineChartComponent history={history} screenWidth={screenWidth} screenHeight={screenHeight} />
-        ) : (
-          <Text style={styles.infoText}>No hay datos para mostrar en el gráfico</Text>
+        {error && (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>⚠️ {error}</Text>
+          </View>
         )}
 
-        <FlatList
-          data={history}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => <HistoryItem item={item} />}
-          style={styles.flatList}
-          scrollEnabled={false}
-        />
+        {/* Último mensaje */}
+        {lastMessage && <LastMessageCard lastMessage={lastMessage} />}
+
+        {/* Gráfico y controles */}
+        <View style={styles.sectionContainer}>
+          <View style={[styles.row, styles.spaceBetween, styles.sectionHeader]}>
+            <Text style={styles.sectionTitle}>Historial de Eventos</Text>
+            <Button
+              title="🗑️ Limpiar"
+              onPress={handleClearHistory}
+              color="#ff3300"
+              disabled={history.length === 0}
+            />
+          </View>
+
+          {history.length > 0 ? (
+            <LineChartComponent
+              history={history}
+              screenWidth={screenWidth}
+              screenHeight={screenHeight}
+            />
+          ) : (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyStateText}>📊 No hay datos para mostrar</Text>
+              <Text style={styles.emptyStateSubtext}>Los eventos aparecerán aquí</Text>
+            </View>
+          )}
+        </View>
+
+        {/* Lista de historial */}
+        {history.length > 0 && (
+          <View style={styles.sectionContainer}>
+            <Text style={styles.sectionTitle}>Detalles de Eventos</Text>
+            <FlatList
+              data={history.slice(0, 10)} // Mostrar solo los últimos 10
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => <HistoryItem item={item} />}
+              scrollEnabled={false}
+              ItemSeparatorComponent={() => <View style={styles.separator} />}
+            />
+          </View>
+        )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
