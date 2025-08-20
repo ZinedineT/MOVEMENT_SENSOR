@@ -1,7 +1,26 @@
 import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
-  container: {
+    scrollContainer: {
+    paddingBottom: 20, // Espacio al final para que no quede pegado
+  },
+  row: {
+    flexDirection: 'row',
+  },
+  spaceBetween: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  infoText: {
+    textAlign: 'center',
+    color: '#666',
+    fontStyle: 'italic',
+    marginVertical: 10,
+  },
+  scrollContainer: {
+    paddingBottom: 20,
+  },
+    container: {
     flex: 1,
     backgroundColor: '#F8FAFC', // Fondo claro y moderno
     paddingHorizontal: 16,
