@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import mqtt from 'mqtt';
 import { ref, push } from 'firebase/database';
 import { database } from '../config/firebaseConfig';
-import useStorage from './useStorage';
 
 const useMQTT = (setLastMessage, setHistory, setIsConnected, setError) => {
   useEffect(() => {
@@ -40,15 +39,24 @@ const useMQTT = (setLastMessage, setHistory, setIsConnected, setError) => {
       try {
         console.log('Mensaje MQTT recibido en topic:', topic, 'Mensaje:', message.toString());
         const data = JSON.parse(message.toString());
+
+        // Filtrar mensajes "inactivo" cortos para no saturar la base de datos
+        if (data.estado === 'inactivo') {
+          console.log('Movimiento corto detectado - ignorando para DB');
+          return;
+        }
+
         const entry = {
           ...data,
           timestamp: new Date().toLocaleString(),
+          db_timestamp: Date.now() // Para ordenamiento consistente
         };
+
         console.log('Datos procesados:', entry);
         setLastMessage(entry);
         setHistory(prev => [entry, ...prev.slice(0, 99)]);
 
-        // Guardar en Firebase
+        // Guardar en Firebase solo mensajes importantes
         console.log('Guardando en Firebase...');
         push(ref(database, '/movimientos'), entry)
           .then(() => console.log('✅ Datos guardados en Firebase'))
