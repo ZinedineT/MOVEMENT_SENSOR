@@ -5,9 +5,9 @@ import ConnectionIndicator from '../components/ConnectionIndicator';
 import LastMessageCard from '../components/LastMessageCard';
 import LineChartComponent from '../components/LineChartComponent';
 import HistoryItem from '../components/HistoryItem';
-import useFirebase from '../hooks/useFirebase';
-import useMQTT from '../hooks/useMQTT';
-import useStorage from '../hooks/useStorage';
+import useFirebase from '../services/useFirebase';
+import useMQTT from '../services/useMQTT';
+import useStorage from '../services/useStorage';
 import { database } from '../config/firebaseConfig';
 import { ref, remove } from 'firebase/database';
 
@@ -52,7 +52,7 @@ export default function HomeScreen() {
             style={styles.logo}
             resizeMode="contain"
           />
-          <Text style={styles.title}>📡 DETECTOR DE PRESENCIA CISTCOR</Text>
+          <Text style={styles.title}>📡 DETECTOR DE PRESENCIA</Text>
           <Text style={styles.subtitle}>Monitoreo en tiempo real</Text>
         </View>
 
