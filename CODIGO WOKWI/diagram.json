@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "author": "ZINEDINE ZIDANE TITO TRINIDAD",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": -124.8, "left": 14.44, "attrs": {} },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": -20,
+      "left": -209.8,
+      "rotate": 270,
+      "attrs": { "color": "red", "flip": "" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": -15.25,
+      "left": -134.4,
+      "attrs": { "value": "1000" }
+    },
+    {
+      "type": "wokwi-pir-motion-sensor",
+      "id": "pir1",
+      "top": -255.2,
+      "left": 155.82,
+      "attrs": {}
+    }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "led1:A", "r1:1", "blue", [ "h0", "v-9.6" ] ],
+    [ "r1:2", "esp:26", "blue", [ "v0" ] ],
+    [ "led1:C", "esp:GND.1", "#8f4814", [ "h0", "v18.8" ] ],
+    [ "esp:14", "pir1:OUT", "blue", [ "h-38.25", "v-144", "h9.6" ] ],
+    [ "pir1:VCC", "esp:5V", "gold", [ "v268.8", "h-172.8" ] ],
+    [ "pir1:GND", "esp:GND.3", "#8f4814", [ "v0" ] ]
+  ],
+  "dependencies": {}
+}
