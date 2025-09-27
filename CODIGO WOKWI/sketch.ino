@@ -13,6 +13,7 @@ const char* mqtt_topic = "iot/zinedine/presence";
 // ==== CONFIGURACIÓN SENSORES ====
 const int pirPin = 14;
 const int ledPin = 26;
+const int relePin = 27;
 
 // ==== VARIABLES MEJORADAS ====
 int conteo = 0;
@@ -109,7 +110,7 @@ bool detectarMovimiento() {
     return (lecturaActual == HIGH);
   }
 
-  return (estadoAnterior == HIGH); // Mantener estado anterior durante debounce
+  return (estadoAnterior == HIGH); 
 }
 
 // ==== VERIFICAR TIEMPO DE INACTIVIDAD ====
@@ -119,7 +120,7 @@ void verificarInactividad() {
   // Reportar inactividad periódica (solo si hubo movimiento antes)
   if (movimientoActivo && ahora - ultimoTiempoMovimiento > TIEMPO_INACTIVIDAD) {
     enviarMensajeMQTT("inactivo_largo");
-    ultimoTiempoMovimiento = ahora; // Resetear para no enviar repetidamente
+    ultimoTiempoMovimiento = ahora;
     Serial.println("⏰ Inactividad prolongada reportada");
   }
 }
@@ -127,6 +128,7 @@ void verificarInactividad() {
 void setup() {
   pinMode(pirPin, INPUT);
   pinMode(ledPin, OUTPUT);
+  pinMode(relePin, OUTPUT);
   Serial.begin(115200);
 
   Serial.println("🚀 Iniciando detector de presencia...");
@@ -164,6 +166,7 @@ void loop() {
     ultimoTiempoMovimiento = ahora;
     movimientoActivo = true;
     digitalWrite(ledPin, HIGH);
+    digitalWrite(relePin, HIGH);
 
     enviarMensajeMQTT("detectado");
     Serial.println("🎯 Movimiento detectado!");
@@ -173,9 +176,10 @@ void loop() {
   if (movimientoActivo && !movimientoActual) {
     movimientoActivo = false;
     digitalWrite(ledPin, LOW);
+    digitalWrite(relePin, LOW);
 
     // Solo enviar "inactivo" inmediatamente si el movimiento fue muy corto
-    if (ahora - ultimoTiempoMovimiento < 2000) { // Menos de 2 segundos
+    if (ahora - ultimoTiempoMovimiento < 2000) {
       enviarMensajeMQTT("inactivo");
     }
     Serial.println("💤 Movimiento terminado");
@@ -185,5 +189,5 @@ void loop() {
   verificarInactividad();
 
   estadoAnterior = movimientoActual;
-  delay(100); // Mejor responsividad
+  delay(100);
 }
